@@ -1,10 +1,24 @@
 WITH CTE AS 
 (
     SELECT 
-    STARTED_AT
+    TO_TIMESTAMP(STARTED_AT) as started_ts,
+    DATE(STARTED_AT) as date_started_at,
+    HOUR(TO_TIMESTAMP(STARTED_AT)) as hour_started_at,
+    CASE 
+    WHEN DAYNAME(TO_TIMESTAMP(STARTED_AT)) IN ('sat','sun')
+    THEN 'WEEKEND'
+    ELSE 'BUSINESSDAY'
+    END AS day_type,
+
+    CASE 
+        WHEN MONTH(TO_TIMESTAMP(STARTED_AT)) in (12,1,2) THEN 'WINTER'
+        WHEN MONTH(TO_TIMESTAMP(STARTED_AT)) IN (3,4,5) THEN 'SPRING'
+        WHEN MONTH(TO_TIMESTAMP(STARTED_AT)) IN (6,7,8) THEN 'SUMMER'
+        ELSE 'AUTUMN'
+    END AS STATION_OF_YEAR
+
     FROM 
     {{ source('demo', 'bike') }}
-
 )
 
 SELECT 
